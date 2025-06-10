@@ -1,0 +1,159 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+
+class Song
+{
+    public string Title { get; set; }
+    public string Artist { get; set; }
+    public TimeSpan Duration { get; set; }
+
+    public Song(string title, string artist, TimeSpan duration)
+    {
+        Title = title;
+        Artist = artist;
+        Duration = duration;
+    }
+
+    public override string ToString()
+    {
+        return $"{Title} — {Artist} ({Duration:mm\\:ss})";
+    }
+}
+
+class MusicDisc
+{
+    public string DiscName { get; set; }
+    public string Genre { get; set; }
+    public List<Song> Songs { get; set; }
+
+    public MusicDisc(string name, string genre)
+    {
+        DiscName = name;
+        Genre = genre;
+        Songs = new List<Song>();
+    }
+
+    public void AddSong(Song song) => Songs.Add(song);
+
+    public void RemoveSong(string title) =>
+        Songs.RemoveAll(s => s.Title.Equals(title, StringComparison.OrdinalIgnoreCase));
+
+    public void ViewSongs(bool sortByTitle = false)
+    {
+        Console.WriteLine($"\nДиск: {DiscName} | Жанр: {Genre}");
+        var songList = Songs;
+
+        if (sortByTitle)
+            songList = Songs.OrderBy(s => s.Title).ToList();
+
+        foreach (var song in songList)
+            Console.WriteLine("  - " + song);
+    }
+}
+
+class Catalog
+{
+    private Hashtable discs = new Hashtable(); // Використовуємо Hashtable згідно з вимогою
+
+    public void AddDisc(string name, string genre)
+    {
+        if (!discs.ContainsKey(name))
+        {
+            discs[name] = new MusicDisc(name, genre);
+            Console.WriteLine($"Диск '{name}' додано.");
+        }
+    }
+
+    public void RemoveDisc(string name)
+    {
+        if (discs.ContainsKey(name))
+        {
+            discs.Remove(name);
+            Console.WriteLine($"Диск '{name}' видалено.");
+        }
+    }
+
+    public void AddSongToDisc(string discName, Song song)
+    {
+        if (discs.ContainsKey(discName))
+        {
+            var disc = (MusicDisc)discs[discName];
+            disc.AddSong(song);
+            Console.WriteLine($"Пісня '{song.Title}' додана до диска '{discName}'.");
+        }
+    }
+
+    public void RemoveSongFromDisc(string discName, string songTitle)
+    {
+        if (discs.ContainsKey(discName))
+        {
+            var disc = (MusicDisc)discs[discName];
+            disc.RemoveSong(songTitle);
+            Console.WriteLine($"Пісня '{songTitle}' видалена з диска '{discName}'.");
+        }
+    }
+
+    public void ViewCatalog(bool sort = false)
+    {
+        Console.WriteLine("\n=== Каталог дисків ===");
+        foreach (DictionaryEntry entry in discs)
+        {
+            var disc = (MusicDisc)entry.Value;
+            disc.ViewSongs(sortByTitle: sort);
+        }
+    }
+
+    public void ViewDisc(string discName)
+    {
+        if (discs.ContainsKey(discName))
+        {
+            var disc = (MusicDisc)discs[discName];
+            disc.ViewSongs();
+        }
+        else
+        {
+            Console.WriteLine($"Диск '{discName}' не знайдено.");
+        }
+    }
+
+    public void SearchByArtist(string artist)
+    {
+        Console.WriteLine($"\nПошук пісень виконавця: {artist}");
+        foreach (DictionaryEntry entry in discs)
+        {
+            var disc = (MusicDisc)entry.Value;
+            foreach (var song in disc.Songs)
+            {
+                if (song.Artist.Equals(artist, StringComparison.OrdinalIgnoreCase))
+                    Console.WriteLine($"[{disc.DiscName}] {song}");
+            }
+        }
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        Catalog catalog = new Catalog();
+
+        catalog.AddDisc("Рок Хіти", "Рок");
+        catalog.AddSongToDisc("Рок Хіти", new Song("Небо", "Океан Ельзи", TimeSpan.FromMinutes(4.5)));
+        catalog.AddSongToDisc("Рок Хіти", new Song("Стіна", "Бумбокс", TimeSpan.FromMinutes(3.8)));
+
+        catalog.AddDisc("Поп Мікс", "Поп");
+        catalog.AddSongToDisc("Поп Мікс", new Song("Плакала", "KAZKA", TimeSpan.FromMinutes(3.2)));
+
+        catalog.ViewCatalog(sort: true);
+
+        catalog.SearchByArtist("Океан Ельзи");
+
+        catalog.RemoveSongFromDisc("Рок Хіти", "Стіна");
+        catalog.ViewDisc("Рок Хіти");
+
+        catalog.RemoveDisc("Поп Мікс");
+        catalog.ViewCatalog();
+    }
+}
