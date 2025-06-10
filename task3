@@ -1,0 +1,119 @@
+using System;
+using System.Collections;
+using System.IO;
+
+// Клас 1: Перевірка зворотного рядка
+class StringReverseChecker : ICloneable, IEnumerable
+{
+    public string S1 { get; set; }
+    public string S2 { get; set; }
+
+    public StringReverseChecker(string s1, string s2)
+    {
+        S1 = s1;
+        S2 = s2;
+    }
+
+    public bool IsReverse()
+    {
+        Stack stack = new Stack();
+        foreach (char c in S1)
+            stack.Push(c);
+
+        foreach (char c in S2)
+        {
+            if (stack.Count == 0 || (char)stack.Pop() != c)
+                return false;
+        }
+
+        return stack.Count == 0;
+    }
+
+    public object Clone()
+    {
+        return new StringReverseChecker(S1, S2);
+    }
+
+    public IEnumerator GetEnumerator()
+    {
+        foreach (char c in S1)
+            yield return c;
+    }
+}
+
+// Клас 2: Обробка чисел із файлу
+class NumberQueueProcessor : ICloneable
+{
+    private ArrayList numbers = new ArrayList();
+
+    public void LoadFromFile(string path)
+    {
+        foreach (var line in File.ReadAllLines(path))
+        {
+            if (int.TryParse(line, out int num))
+                numbers.Add(num);
+        }
+    }
+
+    public void Process()
+    {
+        Queue positives = new Queue();
+        Queue negatives = new Queue();
+
+        foreach (int n in numbers)
+        {
+            if (n >= 0)
+                positives.Enqueue(n);
+            else
+                negatives.Enqueue(n);
+        }
+
+        Console.WriteLine("Позитивні:");
+        foreach (var x in positives)
+            Console.Write(x + " ");
+
+        Console.WriteLine("\nНегативні:");
+        foreach (var x in negatives)
+            Console.Write(x + " ");
+    }
+
+    public object Clone()
+    {
+        var copy = new NumberQueueProcessor();
+        foreach (var n in numbers)
+            copy.numbers.Add(n);
+        return copy;
+    }
+}
+
+// Опціональний клас для сортування
+class IntComparer : IComparer
+{
+    public int Compare(object x, object y)
+    {
+        return ((int)x).CompareTo((int)y);
+    }
+}
+
+// Точка входу
+class Program
+{
+    static void Main()
+    {
+        // === Завдання 1 ===
+        Console.WriteLine("=== Завдання 1: Перевірка зворотності рядка ===");
+        var checker = new StringReverseChecker("hello", "olleh");
+        Console.WriteLine($"Рядок '{checker.S2}' є зворотнім до '{checker.S1}'? {checker.IsReverse()}");
+
+        // === Завдання 2 ===
+        Console.WriteLine("\n=== Завдання 2: Обробка чисел з файлу ===");
+        var processor = new NumberQueueProcessor();
+
+        // Тестовий файл
+        string path = "numbers.txt";
+        File.WriteAllLines(path, new string[] { "4", "-2", "3", "-1", "7", "0" });
+
+        processor.LoadFromFile(path);
+        processor.Process();
+    }
+}
