@@ -1,0 +1,52 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+
+class Program
+{
+    static void Main()
+    {
+        string filePath = "numbers.txt"; // Шлях до файлу
+
+        if (!File.Exists(filePath))
+        {
+            Console.WriteLine("Файл не знайдено.");
+            return;
+        }
+
+        // Черги для зберігання чисел
+        Queue<int> positiveNumbers = new Queue<int>();
+        Queue<int> negativeNumbers = new Queue<int>();
+
+        try
+        {
+            using (StreamReader reader = new StreamReader(filePath))
+            {
+                while (!reader.EndOfStream)
+                {
+                    string line = reader.ReadLine();
+                    if (int.TryParse(line, out int number))
+                    {
+                        if (number >= 0)
+                            positiveNumbers.Enqueue(number);
+                        else
+                            negativeNumbers.Enqueue(number);
+                    }
+                }
+            }
+
+            Console.WriteLine("Позитивні числа:");
+            foreach (int num in positiveNumbers)
+                Console.Write(num + " ");
+
+            Console.WriteLine("\nНегативні числа:");
+            foreach (int num in negativeNumbers)
+                Console.Write(num + " ");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Сталася помилка при читанні файлу: " + ex.Message);
+        }
+    }
+}
+
