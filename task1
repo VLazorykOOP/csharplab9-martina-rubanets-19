@@ -1,0 +1,41 @@
+using System;
+using System.Collections.Generic;
+
+class Program
+{
+    static void Main()
+    {
+        Console.Write("Введіть перший рядок (s1): ");
+        string s1 = Console.ReadLine();
+
+        Console.Write("Введіть другий рядок (s2): ");
+        string s2 = Console.ReadLine();
+
+        // Створюємо стек і кладемо в нього символи s1
+        Stack<char> stack = new Stack<char>();
+        foreach (char c in s1)
+        {
+            stack.Push(c);
+        }
+
+        // Порівнюємо символи зі стеку з символами s2
+        foreach (char c in s2)
+        {
+            if (stack.Count == 0 || stack.Pop() != c)
+            {
+                Console.WriteLine("s2 НЕ є зворотнім s1.");
+                return;
+            }
+        }
+
+        // Якщо стек після цього не порожній – теж помилка
+        if (stack.Count == 0)
+        {
+            Console.WriteLine("s2 є зворотнім s1.");
+        }
+        else
+        {
+            Console.WriteLine("s2 НЕ є зворотнім s1.");
+        }
+    }
+}
